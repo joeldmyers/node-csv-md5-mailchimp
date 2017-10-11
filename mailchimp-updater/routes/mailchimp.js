@@ -1,9 +1,35 @@
 var express = require('express');
 var router = express.Router();
+var csv = require("fast-csv");
+var fs = require('fs');
+var md5 = require('md5');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-  res.send('mailchimp' + string);
+
+    var stream = fs.createReadStream("../update-to-active.csv");
+
+    // creating string to put address hashes into
+    var hashedAddresses = [];
+    var hashedAddress = '';
+
+    var csvStream = csv()
+    .on("data", function(data){
+        console.log(data[0]);
+         console.log(md5(data[0]) + "\n");
+        hashedAddress = md5(data[0]) + "\n";
+         hashedAddresses += hashedAddress;
+    })
+    .on("end", function(){
+        fs.writeFile('../hashed-addresses.csv', hashedAddresses, function(err) {
+          if (err) return console.log(err);
+        });
+         console.log("done");
+    });
+
+    stream.pipe(csvStream);
+    console.log('test');
+    res.send('mailchimp');
 
   // OPEN CSV
 
